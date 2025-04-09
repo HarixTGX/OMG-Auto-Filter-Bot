@@ -25,30 +25,12 @@ async def next_page(bot, query):
         n_offset = 0
     if not files:
         return
-    settings = await get_settings(query.message.chat.id)
-    if settings['button']:
     btn = [
-      [
-        InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", url=f"https://t.me/{temp.U_NAME}?start=files_{file.file_id}"
-                ),
-            ]
-            for file in files
+        [
+            InlineKeyboardButton(text=f"[{get_size(file.file_size)}] {file.file_name}", url=f"https://t.me/{temp.U_NAME}?start=files_{file.file_id}")
         ]
-    else:
-        btn = [
-            [
-                InlineKeyboardButton(
-                    text=f"{file.file_name}", url=f"https://t.me/{temp.U_NAME}?start=files_{file.file_id}"
-                ),
-                InlineKeyboardButton(
-                    text=f"{get_size(file.file_size)}",
-                    url=f"https://t.me/{temp.U_NAME}?start=files_{file.file_id}"
-                ),
-            ]
-            for file in files
-        ]
-
+        for file in files
+    ]
     if 0 < offset <= 10:
         off_set = 0
     elif offset == 0:
@@ -57,36 +39,28 @@ async def next_page(bot, query):
         off_set = offset - 10
     if n_offset == 0:
         btn.append(
-            [InlineKeyboardButton("⏪ BACK", callback_data=f"next_{req}_{key}_{off_set}"),
-             InlineKeyboardButton(f"📃 Pages {math.ceil(int(offset) / 10) + 1} / {math.ceil(total / 10)}",
-                                  callback_data="pages")]
+            [[
+                InlineKeyboardButton("<<", callback_data=f"next_{req}_{key}_{off_set}"),
+                InlineKeyboardButton(f"{math.ceil(int(offset) / 10) + 1} / {math.ceil(total / 10)}", callback_data="pages")
+            ]]
         )
     elif off_set is None:
-        btn.insert(0,
-            [
-                InlineKeyboardButton("Ott Updates", url="https://t.me/Ott_UpdatezTG"),
-            ]
-        )
-        btn.insert(1,
-            [
-                InlineKeyboardButton("Groups", url="https://t.me/Group_Linkzzzz"),
-            ]
-        )
         btn.append(
-            [InlineKeyboardButton(f"🗓 {math.ceil(int(offset) / 10) + 1} / {math.ceil(total / 10)}", callback_data="pages"),
-             InlineKeyboardButton("NEXT ⏩", callback_data=f"next_{req}_{key}_{n_offset}")])
+            [[
+                InlineKeyboardButton(f"{math.ceil(int(offset) / 10) + 1} / {math.ceil(total / 10)}", callback_data="pages"),
+                InlineKeyboardButton(">>", callback_data=f"next_{req}_{key}_{n_offset}")
+            ]]
+        )
     else:
         btn.append(
-            [
-                InlineKeyboardButton("⏪ BACK", callback_data=f"next_{req}_{key}_{off_set}"),
-                InlineKeyboardButton(f"🗓 {math.ceil(int(offset) / 10) + 1} / {math.ceil(total / 10)}", callback_data="pages"),
-                InlineKeyboardButton("NEXT ⏩", callback_data=f"next_{req}_{key}_{n_offset}")
-            ],
+            [[
+                InlineKeyboardButton("<<", callback_data=f"next_{req}_{key}_{off_set}"),
+                InlineKeyboardButton(f"{math.ceil(int(offset) / 10) + 1} / {math.ceil(total / 10)}", callback_data="pages"),
+                InlineKeyboardButton(">>", callback_data=f"next_{req}_{key}_{n_offset}")
+            ]]
         )
     try:
-        await query.edit_message_reply_markup(
-            reply_markup=InlineKeyboardMarkup(btn)
-        )
+        await query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(btn))
     except MessageNotModified:
         pass
     await query.answer()
